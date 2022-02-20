@@ -1,0 +1,49 @@
+version: '3'
+
+
+networks:
+  laravel9:
+
+
+services:
+  nginx:
+    image: library/nginx:stable-alpine
+    container_name: nginx-laravel9
+    volumes:
+      - ./src/laravel9:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel9
+
+  mysql:
+    image: library/mysql:latest
+    container_name: mysql-laravel9
+    restart: unless-stopped
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: homestead
+      MYSQL_ROOT_PASSWORD: homestead
+    networks:
+      - laravel9
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-laravel9
+    volumes:
+      - ./src/laravel9:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - laravel9
